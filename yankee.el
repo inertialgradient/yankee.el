@@ -1,11 +1,11 @@
 ;;; yankee.el --- GFM / Org-mode source block yanker   -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019 Jake Romer
+;; Copyright (C) 2025 Jake Romer
 
-;; Author: Jake Romer <mail@jakeromer.com>
+;; Author: Jake Romer <jmromer@tensorconclave.com>
 ;; Package-Version: 0.2.0
 ;; Keywords: lisp, markdown, github-flavored markdown, org-mode
-;; URL: https://github.com/jmromer/yankee.el
+;; URL: https://github.com/intertialgradient/yankee.el
 ;; Package-Requires: ((copy-as-format "0.0.8") (emacs "27.1"))
 
 
@@ -35,6 +35,7 @@
 Prompt for output format."
   (interactive "r")
 
+  ;; global and lexical variable overrides, used in `copy-as-format'.
   (defvar file-name)
   (defvar mode-atom)
   (defvar mode-string)
@@ -59,7 +60,12 @@ Prompt for output format."
   ;; Get line numbers and file number
   (setq current-prefix-arg '(4))
   (if (fboundp 'copy-as-format)
-      (copy-as-format)
+      (progn
+        (call-interactively #'copy-as-format)
+        (let ((formatted-text (current-kill 0)))
+          (when (and (display-graphic-p) formatted-text)
+            (gui-set-selection 'CLIPBOARD formatted-text))
+          (message "Copied formatted text to kill ring and system clipboard.")))
     (error "Package yankee.el requires copy-as-format")))
 
 (defun yankee--in-project-p ()
